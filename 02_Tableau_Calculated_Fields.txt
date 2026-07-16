@@ -1,0 +1,68 @@
+# Greenside Villas — Tableau Calculated Fields
+# Portfolio Section 6: Tableau
+# ---------------------------------------------------------------------------
+# Data source: Tableau_Weekly_Extract.csv (connect as a single flat table;
+# week_date is already a proper date field for Tableau's date hierarchy)
+# ---------------------------------------------------------------------------
+
+## 1. FB Engagement Rate
+FB Engagement Rate
+= SUM([fb_engagements]) / SUM([fb_reach])
+# Format as percentage. Use in a table calc if broken down by month/week.
+
+## 2. IG Engagement Rate
+IG Engagement Rate
+= SUM([ig_engagements]) / SUM([ig_reach])
+
+## 3. View-to-Inquiry Rate (the key funnel metric from Sections 2-3)
+View to Inquiry Rate
+= SUM([airbnb_inquiries]) / SUM([airbnb_views])
+
+## 4. Inquiry-to-Booking Rate
+Inquiry to Booking Rate
+= SUM([airbnb_bookings]) / SUM([airbnb_inquiries])
+
+## 5. Revenue per Booking
+Revenue per Booking
+= SUM([airbnb_revenue]) / SUM([airbnb_bookings])
+
+## 6. Month-over-Month Reach Growth (Facebook) — table calculation
+FB Reach MoM %
+= (ZN(SUM([fb_reach])) - LOOKUP(ZN(SUM([fb_reach])), -1))
+  / ABS(LOOKUP(ZN(SUM([fb_reach])), -1))
+# Set "Compute Using" -> Month, addressed along the date axis.
+
+## 7. 4-Week Rolling Average Reach (Facebook) — table calculation
+FB Reach 4wk Rolling Avg
+= WINDOW_AVG(SUM([fb_reach]), -3, 0)
+# Compute Using: week_date (continuous), so it walks week by week.
+
+## 8. Booking Flag (for funnel / heatmap visuals)
+Had Booking This Week
+= IIF(SUM([airbnb_bookings]) > 0, "Booking week", "No booking")
+
+## 9. Revenue Rank by Month — table calculation
+Revenue Rank
+= RANK(SUM([airbnb_revenue]), 'desc')
+# Compute Using: month
+
+## 10. Running Total Revenue — table calculation
+Revenue Running Total
+= RUNNING_SUM(SUM([airbnb_revenue]))
+# Compute Using: month, ascending
+
+## 11. Reach vs Bookings Correlation Note
+# Tableau doesn't compute Pearson r natively in a calculated field the way
+# Python/SQL do. Two options:
+#   a) Use a scatter plot (fb_reach vs airbnb_bookings) + "Trend Line" with
+#      R-squared shown via tooltip (Analytics pane > Trend Line > Describe Trend Model)
+#   b) Replicate Section 3's Python correlation matrix as a static reference
+#      image / crosstab, since Tableau's native support is a per-pair scatter,
+#      not a full matrix, without a table calc workaround.
+
+## 12. Data Quality Flag (excludes future placeholder weeks)
+Is Real Data
+= [week_date] <= #2026-06-30#
+# Add this as a filter on every worksheet so pre-built future template
+# rows (all zeros) don't distort averages, matching the exclusion used in
+# Sections 1-3 of this portfolio.
