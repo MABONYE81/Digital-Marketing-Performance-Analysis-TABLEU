@@ -1,3 +1,4 @@
+<img width="1896" height="1236" alt="03tableau_dashboard_mockup" src="https://github.com/user-attachments/assets/1399a3e4-c101-4294-b4ad-9194ba8956b4" />
 # 06_Tableau — README
 
 ## Is there a dashboard here?
